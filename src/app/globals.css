@@ -439,6 +439,24 @@ textarea.form-control { resize: vertical; }
 .admin-filters > label { min-width: 180px; flex: 1; }
 .admin-filters .form-control { background: var(--white); }
 .admin-loading { padding: 25px 0; color: var(--muted); font-size: 12px; }
+.admin-result-count { margin: -10px 0 12px; color: var(--muted); font-size: 11px; }
+.admin-pagination { display: flex; align-items: center; justify-content: center; gap: 16px; margin: 20px 0; color: var(--muted); font-size: 11px; }
+.admin-pagination .button { min-height: 36px; padding: 8px 13px; font-size: 10px; }
+.admin-pagination .button:disabled { cursor: not-allowed; opacity: .5; }
+.admin-order-card.order-overdue { border-color: var(--danger); }
+.overdue-label { display: inline-block; margin: 0 0 0 9px; color: var(--danger); font-size: 10px; font-weight: 700; text-transform: uppercase; }
+.notification-center { margin-top: 20px; }
+.notification-count { display: inline-grid; min-width: 27px; height: 27px; padding: 0 7px; place-items: center; border-radius: 50%; background: var(--danger-soft); color: var(--danger); font-size: 11px; font-weight: 700; }
+.notification-list { margin: 0; padding: 0; list-style: none; }
+.notification-list li { display: flex; align-items: center; justify-content: space-between; gap: 15px; padding: 13px 0; border-top: 1px solid var(--line); }
+.notification-list li > div:first-child { min-width: 0; }
+.notification-list strong { font-size: 12px; }
+.notification-list p { margin: 4px 0; color: var(--muted); font-size: 11px; }
+.notification-list time { color: var(--muted); font-size: 10px; }
+.notification-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 12px; white-space: nowrap; }
+.notification-empty { margin: 0; padding: 10px 0; color: var(--muted); font-size: 11px; }
+.account-notifications { margin: 18px 0 24px; padding: 18px; border: 1px solid var(--pale-green); background: var(--white); }
+.account-notifications .section-heading { margin-bottom: 12px; }
 .theme-settings { max-width: 880px; }
 .theme-settings-note { max-width: 600px; margin: -5px 0 20px; color: var(--muted); font-size: 12px; }
 .theme-choice-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
@@ -570,6 +588,9 @@ textarea.form-control { resize: vertical; }
   .admin-main { width: calc(100% - 32px); }
 }
 @media (max-width: 650px) {
+  .notification-list li { align-items: flex-start; flex-direction: column; }
+  .notification-actions { justify-content: flex-start; }
+  .admin-pagination { gap: 9px; }
   body { font-size: 14px; }
   .announcement { font-size: 9px; }
   .nav-wrap { display: grid; grid-template-columns: minmax(0, 1fr) auto; width: calc(100% - 32px); min-height: 67px; gap: 10px 8px; padding: 10px 0; }

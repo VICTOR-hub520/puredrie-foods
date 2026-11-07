@@ -27,7 +27,7 @@ The local database script expects the PostgreSQL administrator role to be named 
 
 ## Admin operations
 
-Sign in at `/admin/login`. Use Settings to select one of four color themes and light or dark mode. The same appearance controls are available in the storefront footer. Both preferences are saved in the current browser and apply to the storefront and admin pages viewed there. Use the Inventory section to create bulk or finished stock items, receive stock into batches, record count adjustments, set reorder levels, and package bulk ingredients into sale-ready variants. Inventory changes appear in the movement history. Supplier purchasing, returns and replacements, and staff-permission management are not yet available as admin screens.
+Sign in at `/admin/login`. Use Settings to select one of four color themes and light or dark mode. The same appearance controls are available in the storefront footer. Both preferences are saved in the current browser and apply to the storefront and admin pages viewed there. Use the Inventory section to create bulk or finished stock items, receive stock into batches, record count adjustments, set reorder levels, and package bulk ingredients into sale-ready variants. Inventory changes appear in the movement history. The Orders screen supports server-side customer/order search, filters, and pagination; cancellations require a reason and are retained in order history. New-order and delivery-deadline alerts appear in the admin dashboard. Customers with an account receive in-app order-status notifications on their account page; guest orders cannot receive email or SMS alerts until a messaging provider is configured. Orders do not reserve inventory, so cancellation does not adjust stock. Supplier purchasing, returns and replacements, and staff-permission management are not yet available as admin screens.
 
 The public homepage uses Pexels photographs of assorted dried fruit and dried pineapple, plus a close-up of dried mango slices by [RoyBuri on Pixabay](https://pixabay.com/photos/mango-getroknet-fruit-yummy-3386353/). The Pexels photographs in `public/images/` are used under the [Pexels License](https://www.pexels.com/license/); the mango photo is available under the [Pixabay Content License](https://pixabay.com/service/license-summary/). Credits: [assorted dried fruit, by Breakingpic](https://www.pexels.com/photo/dried-fruits-3474/), [dried mango slices, by RoyBuri](https://pixabay.com/photos/mango-getroknet-fruit-yummy-3386353/), and [dried pineapple, by Antoni Shkraba](https://www.pexels.com/photo/dried-pineapple-slices-4499210/).
 
@@ -35,12 +35,13 @@ The public homepage uses Pexels photographs of assorted dried fruit and dried pi
 
 - `npm.cmd run dev` — start local development.
 - `npm.cmd run lint` — run ESLint.
+- `npm.cmd run test:unit` — run focused order-search and cancellation-validation tests.
 - `npm.cmd run build` — create a production build and type-check.
 - `npm.cmd run db:generate` — generate Prisma Client.
 - `npm.cmd run db:migrate -- --name <name>` — create/apply a local migration.
 - `npm.cmd run db:migrate:deploy` — apply checked-in migrations in a deployment.
 - `npm.cmd run db:seed` — add catalogue, roles, permissions, and the optional configured administrator.
 - `npm.cmd run db:check` — verify the database connection.
-- `npm.cmd run test:smoke` — test the running application and database (`APP_URL` can override `http://localhost:3000`).
+- `npm.cmd run test:smoke` — test the running application and database (`APP_URL` can override `http://127.0.0.1:3000`).
 
 Do not use real credentials in source control or expose PostgreSQL and administrator credentials to browser code.

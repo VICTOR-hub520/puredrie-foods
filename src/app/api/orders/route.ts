@@ -5,6 +5,7 @@ import { getCustomerUser } from "@/lib/auth";
 import { expectedDeliveryDate } from "@/lib/delivery";
 import { prisma } from "@/lib/prisma";
 import { getAvailableCredit } from "@/lib/credit";
+import { notifyActiveAdmins } from "@/lib/notifications";
 import { checkoutSchema } from "@/lib/validation";
 
 export async function POST(request: Request) {
@@ -162,10 +163,19 @@ export async function POST(request: Request) {
         },
       },
       select: {
+        id: true,
         orderNumber: true,
         totalAmount: true,
         expectedDeliveryAt: true,
       },
+    });
+
+    await notifyActiveAdmins(transaction, {
+      dedupeKey: `ORDER_CREATED:${order.id}`,
+      type: "ORDER_CREATED",
+      title: "New website order",
+      message: `Order ${order.orderNumber} has been placed.`,
+      href: "/admin/orders",
     });
 
     return { kind: "created" as const, order };

@@ -26,6 +26,12 @@ export default async function CustomerAccountPage() {
     },
     orderBy: { createdAt: "desc" },
   });
+  const notifications = await prisma.notification.findMany({
+    where: { userId: user.id, readAt: null },
+    select: { id: true, title: true, message: true, href: true, createdAt: true },
+    orderBy: { createdAt: "desc" },
+    take: 20,
+  });
 
-  return <AccountDashboard user={user} customer={customer} orders={orders} />;
+  return <AccountDashboard user={user} customer={customer} orders={orders} notifications={notifications.map((item) => ({ ...item, createdAt: item.createdAt.toISOString() }))} />;
 }

@@ -3,13 +3,16 @@ import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
-const baseUrl = process.env.APP_URL ?? "http://localhost:3000";
+const baseUrl = process.env.APP_URL ?? "http://127.0.0.1:3000";
 const suffix = randomUUID().replaceAll("-", "");
 const email = `smoke-${suffix}@example.invalid`;
+const customerEmail = `customer-${suffix}@example.invalid`;
 const password = randomBytes(24).toString("base64url");
+const customerPassword = randomBytes(24).toString("base64url");
 const phone = `+254700${suffix.slice(0, 7)}`;
 let orderNumber;
 let adminId;
+let customerUserId;
 
 async function assert(condition, message) {
   if (!condition) throw new Error(message);
@@ -31,6 +34,30 @@ async function main() {
     body: JSON.stringify({ items: [] }),
   });
   await assert(invalidOrder.status === 400, "Invalid checkout input was not rejected.");
+
+  const registration = await fetch(`${baseUrl}/api/customer/register`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      fullName: "Smoke Test Customer",
+      email: customerEmail,
+      phone,
+      password: customerPassword,
+    }),
+  });
+  await assert(registration.status === 201, "Customer registration failed.");
+  const customer = await prisma.user.findUnique({ where: { email: customerEmail }, select: { id: true } });
+  await assert(customer, "Registered customer was not created.");
+  customerUserId = customer.id;
+  const customerLogin = await fetch(`${baseUrl}/api/customer/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email: customerEmail, password: customerPassword }),
+  });
+  await assert(customerLogin.ok, "Valid customer credentials were rejected.");
+  const customerCookieHeader = customerLogin.headers.get("set-cookie");
+  await assert(customerCookieHeader?.includes("puredrie-customer="), "Customer login did not set a session cookie.");
+  const customerCookie = customerCookieHeader.split(";")[0];
 
   const adminRole = await prisma.role.upsert({
     where: { name: "ADMIN" },
@@ -57,14 +84,16 @@ async function main() {
   const cookie = setCookie.split(";")[0];
   const allowed = await fetch(`${baseUrl}/api/admin/orders`, { headers: { Cookie: cookie } });
   await assert(allowed.ok, "Authenticated administrator could not access orders.");
+  const orderPage = await allowed.json();
+  await assert(Array.isArray(orderPage.orders) && Number.isInteger(orderPage.totalPages), "Orders API did not return a paginated result.");
 
   const checkout = await fetch(`${baseUrl}/api/orders`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", Cookie: customerCookie },
     body: JSON.stringify({
       fullName: "Pure Drie Smoke Test",
       phone,
-      email: "",
+      email: customerEmail,
       deliveryAddress: "1 Test Lane, Nairobi",
       deliveryTown: "Nairobi",
       paymentMethod: "MPESA",
@@ -84,8 +113,48 @@ async function main() {
   await assert(order.paymentStatus === "PENDING" && order.payments.length === 0, "A pending order should not be misreported as a received payment.");
   await assert(order.deliveryFee.toNumber() === 0, "Delivery was not free.");
   await assert(order.statusHistory.some((event) => event.toStatus === "NEW"), "Order history was not recorded.");
+  const newOrderNotice = await prisma.notification.findFirst({
+    where: { userId: adminId, dedupeKey: `ORDER_CREATED:${order.id}:${adminId}` },
+  });
+  await assert(newOrderNotice, "New orders did not notify administrators.");
 
-  console.log("Smoke test passed: catalogue, validation, checkout, database transaction, and admin session access.");
+  const missingReason = await fetch(`${baseUrl}/api/admin/orders/${order.id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", Cookie: cookie },
+    body: JSON.stringify({ orderStatus: "CANCELLED" }),
+  });
+  await assert(missingReason.status === 400, "Cancellation without a reason was not rejected.");
+
+  const cancellation = await fetch(`${baseUrl}/api/admin/orders/${order.id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", Cookie: cookie },
+    body: JSON.stringify({ orderStatus: "CANCELLED", cancellationReason: "Smoke test cleanup" }),
+  });
+  await assert(cancellation.ok, "Order cancellation with a reason failed.");
+  const cancelledOrder = await prisma.order.findUnique({
+    where: { id: order.id },
+    include: { statusHistory: true },
+  });
+  await assert(cancelledOrder?.orderStatus === "CANCELLED", "Cancelled order status was not persisted.");
+  await assert(cancelledOrder.statusHistory.some((event) => event.note?.includes("Smoke test cleanup")), "Cancellation reason was not retained in order history.");
+
+  const customerNotice = await prisma.notification.findFirst({
+    where: { userId: customerUserId, type: "ORDER_STATUS_CHANGED" },
+  });
+  await assert(customerNotice?.message.includes("Smoke test cleanup"), "Customers were not notified of order status changes.");
+
+  const search = await fetch(`${baseUrl}/api/admin/orders?search=${encodeURIComponent(orderNumber)}&pageSize=10`, {
+    headers: { Cookie: cookie },
+  });
+  const searchResult = await search.json();
+  await assert(search.ok && searchResult.total === 1 && searchResult.orders[0].id === order.id, "Server-side order search failed.");
+  const markRead = await fetch(`${baseUrl}/api/notifications/${customerNotice.id}`, {
+    method: "PATCH",
+    headers: { Cookie: customerCookie },
+  });
+  await assert(markRead.ok, "Customer could not mark their notification as read.");
+
+  console.log("Smoke test passed: customer registration/login, checkout, order search, cancellation history, notifications, and admin access.");
 }
 
 main()
@@ -99,10 +168,21 @@ main()
         where: { orderNumber },
         select: { id: true },
       });
-      if (order) await prisma.order.delete({ where: { id: order.id } });
+      if (order) {
+        await prisma.notification.deleteMany({
+          where: {
+            OR: [
+              { dedupeKey: { startsWith: `ORDER_CREATED:${order.id}:` } },
+              { href: `/account#order-${order.id}` },
+            ],
+          },
+        });
+        await prisma.order.delete({ where: { id: order.id } });
+      }
       await prisma.customer.deleteMany({ where: { phone } });
     }
     if (orderNumber) await prisma.order.deleteMany({ where: { orderNumber } });
+    if (customerUserId) await prisma.user.deleteMany({ where: { id: customerUserId } });
     if (adminId) await prisma.user.deleteMany({ where: { id: adminId } });
     await prisma.$disconnect();
   });

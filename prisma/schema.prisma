@@ -22,6 +22,7 @@ model User {
   orderEvents     OrderStatusHistory[]
   deliveryEvents  DeliveryStatusHistory[]
   loginAttempts   AdminLoginAttempt[]
+  notifications   Notification[]
 
   @@index([isActive])
 }
@@ -526,6 +527,21 @@ model AuditLog {
 
   @@index([entityType, entityId, createdAt])
   @@index([userId, createdAt])
+}
+
+model Notification {
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @db.Uuid
+  dedupeKey String    @unique
+  type      String
+  title     String
+  message   String
+  href      String?
+  readAt    DateTime? @db.Timestamptz(3)
+  createdAt DateTime  @default(now()) @db.Timestamptz(3)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, readAt, createdAt])
 }
 
 model ContactMessage {

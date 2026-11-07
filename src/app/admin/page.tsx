@@ -4,6 +4,7 @@ import { AdminNav } from "@/components/admin-nav";
 import { getAdminUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { formatKes } from "@/lib/money";
+import { AdminNotificationCenter } from "@/app/admin/notification-center";
 
 export const dynamic = "force-dynamic";
 
@@ -14,7 +15,55 @@ export default async function AdminDashboard() {
   const now = new Date();
   const inTwoDays = new Date(now.getTime() + 2 * 24 * 60 * 60 * 1000);
   const activeDelivery = { notIn: ["DELIVERED", "CANCELLED"] };
-  const [orders, pending, completed, revenue, recentOrders, overdue, dueSoon, cancelled] = await Promise.all([
+  const [approachingOrders, overdueOrders] = await Promise.all([
+    prisma.order.findMany({
+      where: { orderStatus: activeDelivery, expectedDeliveryAt: { gte: now, lte: inTwoDays } },
+      select: { id: true, orderNumber: true, expectedDeliveryAt: true },
+      orderBy: { expectedDeliveryAt: "asc" },
+      take: 100,
+    }),
+    prisma.order.findMany({
+      where: { orderStatus: activeDelivery, expectedDeliveryAt: { lt: now } },
+      select: { id: true, orderNumber: true, expectedDeliveryAt: true },
+      orderBy: { expectedDeliveryAt: "asc" },
+      take: 100,
+    }),
+  ]);
+  const admins = await prisma.user.findMany({
+    where: { isActive: true, userRoles: { some: { role: { name: "ADMIN" } } } },
+    select: { id: true },
+  });
+  const deadlineAlerts = [
+    ...approachingOrders.map((order) => ({
+      order,
+      type: "DELIVERY_DUE_SOON",
+      title: "Delivery deadline approaching",
+      message: `Order ${order.orderNumber} is due by ${new Intl.DateTimeFormat("en-KE", { dateStyle: "medium", timeZone: "Africa/Nairobi" }).format(order.expectedDeliveryAt)}.`,
+    })),
+    ...overdueOrders.map((order) => ({
+      order,
+      type: "DELIVERY_OVERDUE",
+      title: "Overdue delivery",
+      message: `Order ${order.orderNumber} passed its delivery deadline.`,
+    })),
+  ];
+  if (admins.length && deadlineAlerts.length) {
+    await prisma.notification.createMany({
+      data: deadlineAlerts.flatMap(({ order, type, title, message }) =>
+        admins.map((recipient) => ({
+          userId: recipient.id,
+          dedupeKey: `${type}:${order.id}:${recipient.id}`,
+          type,
+          title,
+          message,
+          href: "/admin/orders",
+        })),
+      ),
+      skipDuplicates: true,
+    });
+  }
+
+  const [orders, pending, completed, revenue, recentOrders, overdue, dueSoon, cancelled, notifications] = await Promise.all([
     prisma.order.count(),
     prisma.order.count({ where: { orderStatus: { in: ["NEW", "CONFIRMED", "BEING_PACKED"] } } }),
     prisma.order.count({ where: { orderStatus: "DELIVERED" } }),
@@ -34,6 +83,12 @@ export default async function AdminDashboard() {
       where: { orderStatus: activeDelivery, expectedDeliveryAt: { gte: now, lte: inTwoDays } },
     }),
     prisma.order.count({ where: { orderStatus: "CANCELLED" } }),
+    prisma.notification.findMany({
+      where: { userId: admin.id, readAt: null },
+      select: { id: true, title: true, message: true, href: true, createdAt: true },
+      orderBy: { createdAt: "desc" },
+      take: 20,
+    }),
   ]);
 
   return (
@@ -49,11 +104,12 @@ export default async function AdminDashboard() {
           <article className="metric-card"><span>Due soon</span><strong>{dueSoon}</strong><small>Expected within two days</small></article>
           <article className="metric-card"><span>Delivered</span><strong>{completed}</strong><small>{cancelled} cancelled</small></article>
         </section>
+        <AdminNotificationCenter notifications={notifications.map((item) => ({ ...item, createdAt: item.createdAt.toISOString() }))} />
         <section className="admin-card">
           <div className="admin-card-heading"><div><span className="eyebrow">Latest activity</span><h2>Recent orders</h2></div><Link href="/admin/orders" className="underlined-link">All orders ↗</Link></div>
           {recentOrders.length ? (
             <div className="table-scroll"><table className="admin-table"><thead><tr><th>Order</th><th>Customer</th><th>Date</th><th>Total</th><th>Status</th></tr></thead>
-              <tbody>{recentOrders.map((order) => <tr key={order.id}><td><Link href="/admin/orders">{order.orderNumber}</Link></td><td>{order.customer.fullName}</td><td>{order.createdAt.toLocaleDateString("en-KE")}</td><td>{formatKes(order.totalAmount)}</td><td><span className={`status-pill status-${order.orderStatus.toLowerCase()}`}>{order.orderStatus.toLowerCase()}</span></td></tr>)}</tbody>
+              <tbody>{recentOrders.map((order) => <tr key={order.id}><td><Link href="/admin/orders">{order.orderNumber}</Link></td><td>{order.customer.fullName}</td><td>{new Intl.DateTimeFormat("en-KE", { dateStyle: "medium", timeZone: "Africa/Nairobi" }).format(order.createdAt)}</td><td>{formatKes(order.totalAmount)}</td><td><span className={`status-pill status-${order.orderStatus.toLowerCase()}`}>{order.orderStatus.toLowerCase()}</span></td></tr>)}</tbody>
             </table></div>
           ) : <div className="admin-empty"><span>✳</span><h3>No orders just yet</h3><p>Customer orders will appear here as soon as they arrive.</p></div>}
         </section>

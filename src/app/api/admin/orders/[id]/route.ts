@@ -21,9 +21,18 @@ export async function PATCH(request: Request, { params }: Props) {
   const { id } = await params;
   const existing = await prisma.order.findUnique({
     where: { id },
-    select: { id: true, orderStatus: true, delivery: { select: { id: true, status: true } } },
+    select: {
+      id: true,
+      orderNumber: true,
+      orderStatus: true,
+      customer: { select: { userId: true } },
+      delivery: { select: { id: true, status: true } },
+    },
   });
   if (!existing) return NextResponse.json({ error: "Order not found." }, { status: 404 });
+  if (existing.orderStatus === "CANCELLED" && parsed.data.orderStatus !== "CANCELLED") {
+    return NextResponse.json({ error: "A cancelled order cannot be reopened. Create a new order instead." }, { status: 409 });
+  }
   if (parsed.data.orderStatus === "CANCELLED" && existing.orderStatus === "DELIVERED") {
     return NextResponse.json({ error: "A delivered order cannot be cancelled." }, { status: 409 });
   }
@@ -36,12 +45,15 @@ export async function PATCH(request: Request, { params }: Props) {
     });
 
     if (existing.orderStatus !== order.orderStatus) {
-      await transaction.orderStatusHistory.create({
+      const history = await transaction.orderStatusHistory.create({
         data: {
           orderId: id,
           changedById: admin.id,
           fromStatus: existing.orderStatus,
           toStatus: order.orderStatus,
+          ...(order.orderStatus === "CANCELLED"
+            ? { note: `Cancellation reason: ${parsed.data.cancellationReason}` }
+            : {}),
         },
       });
       await transaction.auditLog.create({
@@ -50,9 +62,29 @@ export async function PATCH(request: Request, { params }: Props) {
           action: "ORDER_STATUS_CHANGED",
           entityType: "Order",
           entityId: id,
-          details: { from: existing.orderStatus, to: order.orderStatus },
+          details: {
+            from: existing.orderStatus,
+            to: order.orderStatus,
+            ...(order.orderStatus === "CANCELLED"
+              ? { cancellationReason: parsed.data.cancellationReason }
+              : {}),
+          },
         },
       });
+      if (existing.customer.userId) {
+        await transaction.notification.create({
+          data: {
+            userId: existing.customer.userId,
+            dedupeKey: `ORDER_STATUS_CHANGED:${history.id}`,
+            type: "ORDER_STATUS_CHANGED",
+            title: order.orderStatus === "CANCELLED" ? "Order cancelled" : "Order status updated",
+            message: order.orderStatus === "CANCELLED"
+              ? `Order ${existing.orderNumber} was cancelled. Reason: ${parsed.data.cancellationReason}`
+              : `Order ${existing.orderNumber} is now ${order.orderStatus.replaceAll("_", " ").toLowerCase()}.`,
+            href: `/account#order-${id}`,
+          },
+        });
+      }
     }
 
     const deliveryStatuses: Record<string, string> = {

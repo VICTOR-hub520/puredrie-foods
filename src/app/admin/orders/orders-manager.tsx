@@ -12,6 +12,7 @@ type Order = {
   deliveryFee: string;
   totalAmount: string;
   orderStatus: string;
+  isOverdue: boolean;
   paymentStatus: string;
   deliveryAddress: string;
   deliveryTown: string;
@@ -26,14 +27,32 @@ type Order = {
   invoices: { invoiceNumber: string; totalAmount: string; status: string; dueAt: string | null }[];
   delivery: { status: string; assignedTo: string | null; actualDeliveredAt: string | null; deliveryNotes: string | null } | null;
 };
+type OrderPage = { orders: Order[]; total: number; page: number; pageSize: number; totalPages: number };
 const orderStatuses = ["NEW", "CONFIRMED", "BEING_PACKED", "READY_FOR_DISPATCH", "OUT_FOR_DELIVERY", "DELIVERED", "CANCELLED"];
 const paymentStatuses = ["PENDING", "PARTIAL", "PAID", "FAILED", "REFUNDED"];
 
-async function requestOrders(params: URLSearchParams): Promise<Order[]> {
+function orderParams(filters: {
+  status: string;
+  paymentStatus: string;
+  from: string;
+  to: string;
+  search: string;
+  page: number;
+}) {
+  const params = new URLSearchParams({ page: String(filters.page), pageSize: "25" });
+  if (filters.status) params.set("status", filters.status);
+  if (filters.paymentStatus) params.set("paymentStatus", filters.paymentStatus);
+  if (filters.from) params.set("from", filters.from);
+  if (filters.to) params.set("to", filters.to);
+  if (filters.search.trim()) params.set("search", filters.search.trim());
+  return params;
+}
+
+async function requestOrders(params: URLSearchParams): Promise<OrderPage> {
   const response = await fetch(`/api/admin/orders?${params}`, { cache: "no-store" });
   const result = await response.json();
   if (!response.ok) throw new Error(result.error ?? "Could not load orders.");
-  return result as Order[];
+  return result as OrderPage;
 }
 
 export function OrdersManager() {
@@ -43,6 +62,9 @@ export function OrdersManager() {
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [savingId, setSavingId] = useState("");
@@ -50,14 +72,14 @@ export function OrdersManager() {
 
   useEffect(() => {
     let active = true;
-    const params = new URLSearchParams();
-    if (status) params.set("status", status);
-    if (paymentStatus) params.set("paymentStatus", paymentStatus);
-    if (from) params.set("from", from);
-    if (to) params.set("to", to);
-    requestOrders(params)
+    const timer = window.setTimeout(() => {
+      requestOrders(orderParams({ status, paymentStatus, from, to, search, page }))
       .then((result) => {
-        if (active) setOrders(result);
+        if (active) {
+          setOrders(result.orders);
+          setTotal(result.total);
+          setTotalPages(result.totalPages);
+        }
       })
       .catch((issue: unknown) => {
         if (active) setError(issue instanceof Error ? issue.message : "Could not load orders.");
@@ -65,45 +87,54 @@ export function OrdersManager() {
       .finally(() => {
         if (active) setLoading(false);
       });
-    return () => { active = false; };
-  }, [status, paymentStatus, from, to]);
+    }, search.trim() ? 250 : 0);
+    return () => {
+      active = false;
+      window.clearTimeout(timer);
+    };
+  }, [status, paymentStatus, from, to, search, page]);
 
   useEffect(() => {
     async function refreshOrders() {
-      const params = new URLSearchParams();
-      if (status) params.set("status", status);
-      if (paymentStatus) params.set("paymentStatus", paymentStatus);
-      if (from) params.set("from", from);
-      if (to) params.set("to", to);
       try {
-        setOrders(await requestOrders(params));
+        const result = await requestOrders(orderParams({ status, paymentStatus, from, to, search, page }));
+        setOrders(result.orders);
+        setTotal(result.total);
+        setTotalPages(result.totalPages);
       } catch (issue) {
         setError(issue instanceof Error ? issue.message : "Could not refresh orders.");
       }
     }
     window.addEventListener("puredrie:orders-updated", refreshOrders);
     return () => window.removeEventListener("puredrie:orders-updated", refreshOrders);
-  }, [status, paymentStatus, from, to]);
+  }, [status, paymentStatus, from, to, search, page]);
 
   async function updateOrder(id: string, orderStatus: string) {
-    if (orderStatus === "CANCELLED" && !window.confirm("Cancel this order?")) return;
+    let cancellationReason: string | undefined;
+    if (orderStatus === "CANCELLED") {
+      const answer = window.prompt("Enter the reason for cancelling this order:");
+      if (answer === null) return;
+      cancellationReason = answer.trim();
+      if (!cancellationReason) {
+        setError("Enter a cancellation reason to continue.");
+        return;
+      }
+    }
     setSavingId(id);
     setError("");
     try {
       const response = await fetch(`/api/admin/orders/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ orderStatus }),
+        body: JSON.stringify({ orderStatus, ...(cancellationReason ? { cancellationReason } : {}) }),
       });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error ?? "Could not update order.");
       setLoading(true);
-      const params = new URLSearchParams();
-      if (status) params.set("status", status);
-      if (paymentStatus) params.set("paymentStatus", paymentStatus);
-      if (from) params.set("from", from);
-      if (to) params.set("to", to);
-      setOrders(await requestOrders(params));
+      const pageResult = await requestOrders(orderParams({ status, paymentStatus, from, to, search, page }));
+      setOrders(pageResult.orders);
+      setTotal(pageResult.total);
+      setTotalPages(pageResult.totalPages);
     } catch (issue) {
       setError(issue instanceof Error ? issue.message : "Could not update order.");
     } finally {
@@ -124,12 +155,10 @@ export function OrdersManager() {
       });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error ?? "Could not update cheque status.");
-      const params = new URLSearchParams();
-      if (status) params.set("status", status);
-      if (paymentStatus) params.set("paymentStatus", paymentStatus);
-      if (from) params.set("from", from);
-      if (to) params.set("to", to);
-      setOrders(await requestOrders(params));
+      const pageResult = await requestOrders(orderParams({ status, paymentStatus, from, to, search, page }));
+      setOrders(pageResult.orders);
+      setTotal(pageResult.total);
+      setTotalPages(pageResult.totalPages);
     } catch (issue) {
       setError(issue instanceof Error ? issue.message : "Could not update cheque status.");
     } finally {
@@ -159,12 +188,10 @@ export function OrdersManager() {
       const result = await response.json();
       if (!response.ok) throw new Error(result.error ?? "Could not record payment.");
       formElement.reset();
-      const params = new URLSearchParams();
-      if (status) params.set("status", status);
-      if (paymentStatus) params.set("paymentStatus", paymentStatus);
-      if (from) params.set("from", from);
-      if (to) params.set("to", to);
-      setOrders(await requestOrders(params));
+      const pageResult = await requestOrders(orderParams({ status, paymentStatus, from, to, search, page }));
+      setOrders(pageResult.orders);
+      setTotal(pageResult.total);
+      setTotalPages(pageResult.totalPages);
     } catch (issue) {
       setError(issue instanceof Error ? issue.message : "Could not record payment.");
     } finally {
@@ -172,26 +199,23 @@ export function OrdersManager() {
     }
   }
 
-  const visible = orders.filter((order) =>
-    `${order.orderNumber} ${order.customer.fullName} ${order.customer.phone}`.toLowerCase().includes(search.toLowerCase()),
-  );
-
   return (
     <>
       <div className="admin-filters">
-        <label><span className="visually-hidden">Search orders</span><input className="form-control" placeholder="Search name, phone or order…" value={search} onChange={(event) => setSearch(event.target.value)} /></label>
-        <label><span className="visually-hidden">Filter by order status</span><select className="form-control" value={status} onChange={(event) => { setLoading(true); setError(""); setStatus(event.target.value); }}><option value="">All order statuses</option>{orderStatuses.map((item) => <option key={item} value={item}>{item}</option>)}</select></label>
-        <label><span className="visually-hidden">Filter by payment status</span><select className="form-control" value={paymentStatus} onChange={(event) => { setLoading(true); setError(""); setPaymentStatus(event.target.value); }}><option value="">All payment statuses</option>{paymentStatuses.map((item) => <option key={item} value={item}>{item}</option>)}</select></label>
-        <label><span className="visually-hidden">Orders from date</span><input aria-label="Orders from date" className="form-control" type="date" value={from} max={to || undefined} onChange={(event) => { setLoading(true); setError(""); setFrom(event.target.value); }} /></label>
-        <label><span className="visually-hidden">Orders through date</span><input aria-label="Orders through date" className="form-control" type="date" value={to} min={from || undefined} onChange={(event) => { setLoading(true); setError(""); setTo(event.target.value); }} /></label>
+        <label><span className="visually-hidden">Search orders</span><input className="form-control" placeholder="Search customer, email, phone or order…" value={search} onChange={(event) => { setLoading(true); setError(""); setPage(1); setSearch(event.target.value); }} /></label>
+        <label><span className="visually-hidden">Filter by order status</span><select className="form-control" value={status} onChange={(event) => { setLoading(true); setError(""); setPage(1); setStatus(event.target.value); }}><option value="">All order statuses</option>{orderStatuses.map((item) => <option key={item} value={item}>{item}</option>)}</select></label>
+        <label><span className="visually-hidden">Filter by payment status</span><select className="form-control" value={paymentStatus} onChange={(event) => { setLoading(true); setError(""); setPage(1); setPaymentStatus(event.target.value); }}><option value="">All payment statuses</option>{paymentStatuses.map((item) => <option key={item} value={item}>{item}</option>)}</select></label>
+        <label><span className="visually-hidden">Orders from date</span><input aria-label="Orders from date" className="form-control" type="date" value={from} max={to || undefined} onChange={(event) => { setLoading(true); setError(""); setPage(1); setFrom(event.target.value); }} /></label>
+        <label><span className="visually-hidden">Orders through date</span><input aria-label="Orders through date" className="form-control" type="date" value={to} min={from || undefined} onChange={(event) => { setLoading(true); setError(""); setPage(1); setTo(event.target.value); }} /></label>
       </div>
+      <p className="admin-result-count" aria-live="polite">{total} order{total === 1 ? "" : "s"} found</p>
       {error && <p className="form-alert" role="alert">{error}</p>}
-      {loading ? <p className="admin-loading" role="status">Loading orders…</p> : visible.length ? (
+      {loading ? <p className="admin-loading" role="status">Loading orders…</p> : orders.length ? (
         <div className="admin-order-list">
-          {visible.map((order) => (
-            <article className="admin-order-card" key={order.id}>
+          {orders.map((order) => {
+            return <article className={`admin-order-card${order.isOverdue ? " order-overdue" : ""}`} key={order.id}>
               <div className="order-card-top">
-                <div><span className="eyebrow">{order.orderNumber}</span><h2>{order.customer.fullName}</h2><p>{new Date(order.createdAt).toLocaleString("en-KE")}</p></div>
+                <div><span className="eyebrow">{order.orderNumber}</span>{order.isOverdue && <span className="overdue-label">Overdue delivery</span>}<h2>{order.customer.fullName}</h2><p>{new Intl.DateTimeFormat("en-KE", { dateStyle: "medium", timeStyle: "short", timeZone: "Africa/Nairobi" }).format(new Date(order.createdAt))}</p></div>
                 <strong>{formatKes(order.totalAmount)}</strong>
               </div>
               <div className="order-card-meta"><span>{order.customer.phone}</span><span>{order.customer.email || "No email provided"}</span><span>Source: {order.orderSource.replaceAll("_", " ").toLowerCase()}</span><span>Chosen payment: {order.paymentMethod?.replaceAll("_", " ").toLowerCase() ?? "not selected"}</span><span>{order.items.length} product line(s)</span><span>Free delivery · by {new Date(order.expectedDeliveryAt).toLocaleDateString("en-KE", { timeZone: "Africa/Nairobi" })}</span></div>
@@ -220,10 +244,15 @@ export function OrdersManager() {
                 <label>Cheque date<input className="form-control" name="chequeDate" type="date" /></label>
                 <button className="button button-dark" type="submit" disabled={savingId === order.id}>{savingId === order.id ? "Saving…" : "Record payment"}</button>
               </form>
-            </article>
-          ))}
+            </article>;
+          })}
         </div>
       ) : <div className="admin-empty"><span>✳</span><h3>No orders found</h3><p>Try changing your search or filters.</p></div>}
+      {!loading && totalPages > 1 && <nav className="admin-pagination" aria-label="Order pages">
+        <button className="button button-outline" type="button" disabled={page <= 1} onClick={() => { setLoading(true); setPage((current) => current - 1); }}>Previous</button>
+        <span>Page {page} of {totalPages}</span>
+        <button className="button button-outline" type="button" disabled={page >= totalPages} onClick={() => { setLoading(true); setPage((current) => current + 1); }}>Next</button>
+      </nav>}
     </>
   );
 }

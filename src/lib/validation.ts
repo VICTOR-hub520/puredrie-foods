@@ -29,6 +29,15 @@ export const orderStatusSchema = z.object({
     "DELIVERED",
     "CANCELLED",
   ]),
+  cancellationReason: z.string().trim().max(500).optional(),
+}).superRefine((value, context) => {
+  if (value.orderStatus === "CANCELLED" && !value.cancellationReason) {
+    context.addIssue({
+      code: "custom",
+      path: ["cancellationReason"],
+      message: "Enter a reason for cancelling the order.",
+    });
+  }
 });
 
 export const paymentEntrySchema = z.object({

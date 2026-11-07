@@ -5,6 +5,8 @@ import { expectedDeliveryDate } from "@/lib/delivery";
 import { getAdminUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { manualOrderSchema } from "@/lib/validation";
+import { notifyActiveAdmins } from "@/lib/notifications";
+import { parseAdminOrderQuery } from "@/lib/admin-order-query";
 
 export async function POST(request: Request) {
   const admin = await getAdminUser();
@@ -109,6 +111,13 @@ export async function POST(request: Request) {
         details: { orderNumber, source: parsed.data.orderSource },
       },
     });
+    await notifyActiveAdmins(transaction, {
+      dedupeKey: `ORDER_CREATED:${order.id}`,
+      type: "ORDER_CREATED",
+      title: "New staff order",
+      message: `Order ${order.orderNumber} was recorded by staff.`,
+      href: "/admin/orders",
+    });
     return { kind: "created" as const, order };
   });
 
@@ -124,61 +133,84 @@ export async function GET(request: Request) {
   }
 
   const url = new URL(request.url);
-  const status = url.searchParams.get("status");
-  const paymentStatus = url.searchParams.get("paymentStatus");
-  const from = url.searchParams.get("from");
-  const to = url.searchParams.get("to");
-  if ((from && Number.isNaN(Date.parse(from))) || (to && Number.isNaN(Date.parse(to)))) {
-    return NextResponse.json({ error: "Enter valid order dates." }, { status: 400 });
+  const parsedQuery = parseAdminOrderQuery(url.searchParams);
+  if (!parsedQuery.success) {
+    return NextResponse.json({ error: parsedQuery.error }, { status: 400 });
   }
-  const where: {
+  const { status, paymentStatus, from, to, search, page, pageSize } = parsedQuery.data;
+  const filters: {
     orderStatus?: string;
     paymentStatus?: string;
     createdAt?: { gte?: Date; lte?: Date };
+    OR?: Array<
+      | { orderNumber: { contains: string; mode: "insensitive" } }
+      | { customer: { fullName: { contains: string; mode: "insensitive" } } }
+      | { customer: { email: { contains: string; mode: "insensitive" } } }
+      | { customer: { phone: { contains: string } } }
+    >;
   } = {};
-  if (status && ["NEW", "CONFIRMED", "BEING_PACKED", "READY_FOR_DISPATCH", "OUT_FOR_DELIVERY", "DELIVERED", "CANCELLED"].includes(status)) {
-    where.orderStatus = status;
-  }
-  if (paymentStatus && ["PENDING", "PARTIAL", "PAID", "FAILED", "REFUNDED"].includes(paymentStatus)) {
-    where.paymentStatus = paymentStatus;
-  }
+  if (status) filters.orderStatus = status;
+  if (paymentStatus) filters.paymentStatus = paymentStatus;
   if (from || to) {
-    where.createdAt = {};
-    if (from) where.createdAt.gte = new Date(`${from.slice(0, 10)}T00:00:00.000Z`);
-    if (to) where.createdAt.lte = new Date(`${to.slice(0, 10)}T23:59:59.999Z`);
+    filters.createdAt = {};
+    if (from) filters.createdAt.gte = from;
+    if (to) filters.createdAt.lte = to;
   }
 
-  const orders = await prisma.order.findMany({
-    where,
-    include: {
-      customer: { select: { fullName: true, phone: true, email: true } },
-      items: {
-        select: {
-          productName: true,
-          variantName: true,
-          quantity: true,
-          unitPrice: true,
-          subtotal: true,
+  if (search) {
+    filters.OR = [
+      { orderNumber: { contains: search, mode: "insensitive" } },
+      { customer: { fullName: { contains: search, mode: "insensitive" } } },
+      { customer: { email: { contains: search, mode: "insensitive" } } },
+      { customer: { phone: { contains: search } } },
+    ];
+  }
+
+  const [orders, total] = await prisma.$transaction([
+    prisma.order.findMany({
+      where: filters,
+      include: {
+        customer: { select: { fullName: true, phone: true, email: true } },
+        items: {
+          select: {
+            productName: true,
+            variantName: true,
+            quantity: true,
+            unitPrice: true,
+            subtotal: true,
+          },
+        },
+        statusHistory: {
+          select: { fromStatus: true, toStatus: true, note: true, createdAt: true, changedBy: { select: { name: true } } },
+          orderBy: { createdAt: "desc" },
+        },
+        payments: {
+          select: { id: true, amount: true, paymentMethod: true, paymentStatus: true, paymentReference: true, paymentDate: true, chequeDetails: true },
+          orderBy: { createdAt: "desc" },
+        },
+        invoices: {
+          select: { invoiceNumber: true, totalAmount: true, status: true, dueAt: true },
+          orderBy: { issuedAt: "desc" },
+        },
+        delivery: {
+          select: { id: true, status: true, assignedTo: true, actualDeliveredAt: true, deliveryNotes: true, history: { orderBy: { createdAt: "desc" } } },
         },
       },
-      statusHistory: {
-        select: { fromStatus: true, toStatus: true, note: true, createdAt: true, changedBy: { select: { name: true } } },
-        orderBy: { createdAt: "desc" },
-      },
-      payments: {
-        select: { id: true, amount: true, paymentMethod: true, paymentStatus: true, paymentReference: true, paymentDate: true, chequeDetails: true },
-        orderBy: { createdAt: "desc" },
-      },
-      invoices: {
-        select: { invoiceNumber: true, totalAmount: true, status: true, dueAt: true },
-        orderBy: { issuedAt: "desc" },
-      },
-      delivery: {
-        select: { id: true, status: true, assignedTo: true, actualDeliveredAt: true, deliveryNotes: true, history: { orderBy: { createdAt: "desc" } } },
-      },
-    },
-    orderBy: { createdAt: "desc" },
-    take: 200,
+      orderBy: { createdAt: "desc" },
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+    }),
+    prisma.order.count({ where: filters }),
+  ]);
+  const now = new Date();
+  return NextResponse.json({
+    orders: orders.map((order) => ({
+      ...order,
+      isOverdue: !["DELIVERED", "CANCELLED"].includes(order.orderStatus) && order.expectedDeliveryAt < now,
+    })),
+    total,
+    page,
+    pageSize,
+    totalPages: Math.ceil(total / pageSize),
   });
-  return NextResponse.json(orders);
 }
