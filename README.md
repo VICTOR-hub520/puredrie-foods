@@ -12,6 +12,10 @@ Puredrie Foods is a Next.js storefront and business-management application for d
 6. Apply the checked-in PostgreSQL migration with `npm.cmd run db:migrate -- --name init`, then run `npm.cmd run db:seed`.
 7. Start the application with `npm.cmd run dev`. The shop is at `/shop`, customer accounts at `/account`, and administrator sign-in at `/admin/login`.
 
+## Brand story and customer information
+
+The public About page and `/our-story` use the editable sections seeded from `prisma/brand-content.json`. Administrators can edit and publish those sections at `/admin/content`; the founder note is unpublished until the business owner supplies its wording. Seeding adds missing sections without replacing saved edits. Public FAQ, privacy, shopping terms, and delivery/returns information are available from the site footer. The privacy and shopping-policy pages identify details that require business-owner review; confirm the legal identity, data-retention arrangements, service areas, and return/refund terms before relying on them as complete legal notices.
+
 The local database script expects the PostgreSQL administrator role to be named `postgres`. If your installation uses a different administrator role, change `-U postgres` in `scripts/setup-local-database.ps1` before running it.
 
 ## Business rules

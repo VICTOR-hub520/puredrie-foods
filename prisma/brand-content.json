@@ -1,0 +1,50 @@
+[
+  {
+    "key": "story",
+    "title": "Our story",
+    "body": "Pure Drie began with a genuine love of fruit and an appreciation for the goodness nature offers. The idea was simple: make enjoying fruit more convenient, and encourage people to appreciate it as part of everyday life. Today, Puredrie Foods brings dried mangoes, dried pineapples, assorted dried fruits and moringa together in one place, with clear pack options and a friendly way to ask about quantities that are not listed.",
+    "isPublished": true
+  },
+  {
+    "key": "inspiration",
+    "title": "The inspiration behind Puredrie",
+    "body": "The inspiration came from a personal love of fruit and a belief that enjoying it should fit more easily into busy routines. Drying removes water from fruit and can concentrate its naturally occurring sugars by weight; our products are not a substitute for fresh fruit or individual nutrition advice. Our aim is to make dried fruit convenient to explore and enjoy, while keeping our product information clear.",
+    "isPublished": true
+  },
+  {
+    "key": "mission",
+    "title": "Our mission",
+    "body": "To make enjoying fruits easier, more convenient and more enjoyable while encouraging greater appreciation of their nutritional value.",
+    "isPublished": true
+  },
+  {
+    "key": "vision",
+    "title": "Our vision",
+    "body": "To become a trusted fruit brand recognised for quality, convenience and a genuine passion for nature’s goodness.",
+    "isPublished": true
+  },
+  {
+    "key": "philosophy",
+    "title": "Our philosophy",
+    "body": "Good everyday choices should feel welcoming, not complicated. We bring our current range together, show available pack sizes and prices, and make it easy to ask a question or discuss a quantity that is not listed. We prefer clear information and helpful service to promises we cannot substantiate.",
+    "isPublished": true
+  },
+  {
+    "key": "commitment",
+    "title": "Our commitment to customers",
+    "body": "We aim to make every step clear: browse the current range, choose a listed pack or ask about a custom quantity, provide your delivery details and know what happens next. Delivery is free, and orders are scheduled within six Nairobi calendar days, including weekends and public holidays. Checkout records your selected payment method; payment is not treated as received until it has been confirmed and recorded.",
+    "isPublished": true
+  },
+  {
+    "key": "founder-message",
+    "title": "A message from our founder",
+    "body": "Founder message to be added by the business owner. Add the founder’s own words and, if desired, their name in the admin Brand Story editor before publishing.",
+    "isPublished": false
+  },
+  {
+    "key": "quality",
+    "title": "Our approach to quality",
+    "body": "We want customers to be able to make an informed choice. Product names, pack sizes and current prices are shown in the shop, and availability may change. We do not publish nutritional values, ingredient details, allergen claims or certifications unless the business has reliable product information to support them. If you have a question about a product, please contact us before ordering.",
+    "isPublished": true
+  }
+]

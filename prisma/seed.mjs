@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import { readFile } from "node:fs/promises";
 
 const prisma = new PrismaClient();
 
@@ -73,6 +74,17 @@ const permissions = [
 ];
 
 async function main() {
+  const brandContent = JSON.parse(
+    await readFile(new URL("./brand-content.json", import.meta.url), "utf8"),
+  );
+  for (const content of brandContent) {
+    await prisma.siteContent.upsert({
+      where: { key: content.key },
+      update: {},
+      create: content,
+    });
+  }
+
   const adminRole = await prisma.role.upsert({
     where: { name: "ADMIN" },
     update: {},
@@ -157,7 +169,7 @@ async function main() {
     });
   }
 
-  console.log("Puredrie Foods products, package prices, roles, and permissions are ready.");
+  console.log("Puredrie Foods products, brand content, package prices, roles, and permissions are ready.");
 }
 
 main()

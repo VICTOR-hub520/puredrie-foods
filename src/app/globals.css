@@ -248,7 +248,7 @@ img { max-width: 100%; }
 .newsletter-input input { min-width: 0; flex: 1; height: 45px; border: 0; outline: 0; background: transparent; font-size: 12px; }
 .newsletter-input button { border: 0; background: transparent; color: var(--green); cursor: pointer; font-size: 11px; font-weight: 600; white-space: nowrap; }
 .newsletter form > p { margin: 9px 0 0; }
-.footer-main { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: 40px; padding-bottom: 45px; }
+.footer-main { display: grid; grid-template-columns: 1.4fr repeat(4, 1fr); gap: 30px; padding-bottom: 45px; }
 .footer-main > div:first-child > p { max-width: 280px; margin: 17px 0 0; color: var(--muted); font-family: var(--font-display); font-size: 14px; font-style: italic; }
 .footer-brand { margin-bottom: 3px; }
 .footer-links { display: flex; flex-direction: column; align-items: flex-start; gap: 9px; }
@@ -278,6 +278,34 @@ img { max-width: 100%; }
 .about-belief-heading h2 em { color: var(--muted); }
 .about-belief-copy { max-width: 620px; padding-top: 26px; }
 .about-belief-copy p { margin: 0 0 17px; color: var(--muted); font-size: 13px; line-height: 1.9; }
+.brand-value + .brand-value { margin-top: 27px; padding-top: 23px; border-top: 1px solid var(--line); }
+.brand-value h3 { margin: 0 0 8px; font-family: var(--font-display); font-size: 24px; font-weight: 400; }
+.about-principles { padding-top: 50px; padding-bottom: 80px; }
+.about-principles-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.about-principles-list article { padding: 24px; border: 1px solid var(--line); background: var(--paper); }
+.about-principles-list article h3 { margin: 11px 0; font-family: var(--font-display); font-size: 24px; font-weight: 400; }
+.about-principles-list article p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.85; }
+.about-principles-list article .eyebrow { color: var(--tan); }
+.story-narrative { max-width: 900px; }
+.story-narrative article { padding: 35px 0; border-bottom: 1px solid var(--line); }
+.story-narrative article:first-child { padding-top: 10px; }
+.story-narrative article h2 { margin: 10px 0 12px; font-size: clamp(29px, 3.8vw, 42px); }
+.story-narrative article p { max-width: 760px; margin: 0; color: var(--muted); font-size: 14px; line-height: 1.9; }
+.story-narrative .story-founder-note { margin: 25px 0; padding: 25px; border: 1px solid var(--line); background: var(--cream); }
+.story-narrative > .button { margin-top: 35px; }
+.policy-page { max-width: 900px; }
+.policy-heading { max-width: 750px; margin-bottom: 40px; }
+.policy-heading h1 { margin: 12px 0 14px; font-size: clamp(42px, 6vw, 65px); line-height: 1.05; }
+.policy-heading > p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.8; }
+.policy-review-note { margin: 0 0 34px; padding: 17px 20px; border-left: 3px solid var(--mango); background: var(--soft-orange); }
+.policy-review-note strong { font-size: 12px; }
+.policy-review-note p { margin: 5px 0 0; color: var(--muted); font-size: 12px; line-height: 1.75; }
+.policy-sections { display: grid; gap: 25px; }
+.policy-sections section { padding-bottom: 23px; border-bottom: 1px solid var(--line); }
+.policy-sections h2 { margin: 0 0 9px; font-family: var(--font-display); font-size: 25px; font-weight: 400; }
+.policy-sections p, .policy-contact { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.9; }
+.policy-sections a, .policy-contact a { color: var(--green); text-decoration: underline; text-underline-offset: 3px; }
+.policy-contact { margin-top: 32px; }
 .about-range { padding-top: 80px; padding-bottom: 65px; }
 .about-range .section-heading { align-items: end; }
 .about-range .section-heading h2, .about-how .section-heading h2 { margin: 11px 0 0; font-size: clamp(36px, 4vw, 51px); line-height: 1.04; }
@@ -669,6 +697,14 @@ textarea.form-control { resize: vertical; }
   .about-belief { grid-template-columns: 1fr; gap: 5px; padding-top: 56px; padding-bottom: 38px; }
   .about-belief-heading h2 { font-size: 37px; }
   .about-belief-copy { padding-top: 10px; }
+  .about-principles { padding-top: 35px; padding-bottom: 58px; }
+  .about-principles-list { grid-template-columns: 1fr; }
+  .story-narrative { padding-top: 42px; padding-bottom: 50px; }
+  .policy-page { padding-top: 50px; padding-bottom: 58px; }
+  .policy-heading { margin-bottom: 28px; }
+  .policy-heading h1 { font-size: 43px; }
+  .policy-sections { gap: 20px; }
+  .policy-sections h2 { font-size: 22px; }
   .about-range { padding-top: 58px; padding-bottom: 42px; }
   .about-range-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
   .about-range-label { padding: 12px; font-size: 11px; }

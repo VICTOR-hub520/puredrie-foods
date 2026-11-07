@@ -17,8 +17,16 @@ export function SiteFooter() {
           <span className="eyebrow">Explore</span>
           <Link href="/shop">Products</Link>
           <Link href="/about">About us</Link>
+          <Link href="/our-story">Our story</Link>
+          <Link href="/faq">FAQs</Link>
           <Link href="/contact">Contact & enquiries</Link>
           <Link href="/admin/login">Staff sign in</Link>
+        </div>
+        <div className="footer-links">
+          <span className="eyebrow">Information</span>
+          <Link href="/delivery-returns">Delivery & returns</Link>
+          <Link href="/privacy">Privacy</Link>
+          <Link href="/terms">Shopping terms</Link>
         </div>
         <div className="footer-links">
           <span className="eyebrow">Say hello</span>
