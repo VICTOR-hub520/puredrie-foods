@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 760">
+  <defs>
+    <linearGradient id="bg" x2="0" y2="1"><stop stop-color="#f9f2df"/><stop offset="1" stop-color="#e8d9ad"/></linearGradient>
+    <linearGradient id="pack" x2="1" y2="1"><stop stop-color="#fdfcf3"/><stop offset="1" stop-color="#e8e4d3"/></linearGradient>
+  </defs>
+  <rect width="700" height="760" fill="url(#bg)"/>
+  <circle cx="548" cy="139" r="72" fill="#f1deaa" opacity=".72"/>
+  <ellipse cx="354" cy="622" rx="191" ry="30" fill="#77734d" opacity=".18"/>
+  <path d="M216 181h263l27 64-14 324c-2 42-24 64-68 64H276c-44 0-67-22-68-64l-16-324z" fill="url(#pack)" stroke="#d9d3bd" stroke-width="8"/>
+  <path d="M216 181h263l18 47H201z" fill="#4d6643"/>
+  <path d="M228 286h241v271H228z" fill="#6d8152"/>
+  <path d="M288 367c25-41 61-61 108-60-9 48-40 75-95 80m47-85c-1-45 18-76 56-94 19 41 12 77-23 109" fill="none" stroke="#d5ddba" stroke-width="10" stroke-linecap="round"/>
+  <rect x="250" y="429" width="198" height="80" rx="8" fill="#f9f5e8"/>
+  <text x="349" y="462" text-anchor="middle" fill="#40533b" font-family="Georgia,serif" font-size="21">PUREDRIE</text>
+  <text x="349" y="486" text-anchor="middle" fill="#667452" font-family="Arial,sans-serif" font-size="13" letter-spacing="2">MORINGA TEA</text>
+  <text x="350" y="710" text-anchor="middle" fill="#536043" font-family="Georgia,serif" font-size="17" letter-spacing="4">50g · TEABAGS</text>
+</svg>

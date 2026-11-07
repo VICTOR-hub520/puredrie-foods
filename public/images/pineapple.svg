@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 760">
+  <defs>
+    <linearGradient id="paper" x2="0" y2="1"><stop stop-color="#f7e8bd"/><stop offset="1" stop-color="#e6c57f"/></linearGradient>
+    <linearGradient id="ring" x2="1" y2="1"><stop stop-color="#ffdf72"/><stop offset="1" stop-color="#e98c35"/></linearGradient>
+    <filter id="shadow" x="-.2" y="-.2" width="1.4" height="1.4"><feGaussianBlur stdDeviation="11"/></filter>
+  </defs>
+  <rect width="700" height="760" fill="url(#paper)"/>
+  <circle cx="548" cy="150" r="75" fill="#f3d89e" opacity=".65"/>
+  <ellipse cx="352" cy="624" rx="205" ry="30" fill="#7c4c2b" opacity=".2" filter="url(#shadow)"/>
+  <g fill="url(#ring)" stroke="#d78538" stroke-width="7">
+    <circle cx="348" cy="268" r="126"/><circle cx="348" cy="268" r="47" fill="#f4dba3"/>
+    <circle cx="264" cy="427" r="126"/><circle cx="264" cy="427" r="48" fill="#f1d89d"/>
+    <circle cx="437" cy="446" r="126"/><circle cx="437" cy="446" r="48" fill="#f1d89d"/>
+  </g>
+  <g fill="none" stroke="#fff0a7" stroke-width="9" opacity=".7">
+    <path d="m254 194 188 149m-203 58 196 168m-88-267L205 489m302-20L337 254"/>
+  </g>
+  <path d="M311 123c-30-55-26-99 14-132 40 39 48 78 22 119m-8 9c5-67 34-107 86-120 14 54-10 94-71 121m-26 8c-18-62-7-108 32-139 34 48 34 93 0 134" fill="#55724a"/>
+  <text x="350" y="710" text-anchor="middle" fill="#536043" font-family="Georgia,serif" font-size="17" letter-spacing="4">PURE DRIE · PINEAPPLE</text>
+</svg>

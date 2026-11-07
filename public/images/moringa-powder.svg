@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 760">
+  <defs>
+    <linearGradient id="bg" x2="0" y2="1"><stop stop-color="#f8f2df"/><stop offset="1" stop-color="#e1dec0"/></linearGradient>
+    <linearGradient id="jar" x2="1" y2="1"><stop stop-color="#fffdf3"/><stop offset="1" stop-color="#e6e2d0"/></linearGradient>
+    <linearGradient id="powder" x2="1" y2="1"><stop stop-color="#829354"/><stop offset="1" stop-color="#53673b"/></linearGradient>
+  </defs>
+  <rect width="700" height="760" fill="url(#bg)"/>
+  <circle cx="546" cy="142" r="77" fill="#e8dcae" opacity=".7"/>
+  <ellipse cx="351" cy="627" rx="162" ry="28" fill="#77734d" opacity=".18"/>
+  <path d="M253 225h194l20 56 13 282c3 43-21 68-63 68H278c-41 0-64-25-61-68l15-282z" fill="url(#jar)" stroke="#d4d0be" stroke-width="8"/>
+  <path d="M264 340h174l11 223c2 22-10 34-32 34H278c-22 0-34-12-32-34z" fill="url(#powder)"/>
+  <path d="M249 218c0-23 13-38 36-38h130c23 0 36 15 36 38v40H249z" fill="#526344"/>
+  <path d="M282 405h140v108H282z" rx="8" fill="#f7f3e5"/>
+  <text x="352" y="445" text-anchor="middle" fill="#40533b" font-family="Georgia,serif" font-size="21">PUREDRIE</text>
+  <text x="352" y="474" text-anchor="middle" fill="#667452" font-family="Arial,sans-serif" font-size="13" letter-spacing="3">MORINGA POWDER</text>
+  <text x="352" y="500" text-anchor="middle" fill="#667452" font-family="Arial,sans-serif" font-size="11">100g</text>
+  <path d="M133 210c45-66 101-96 168-88-28 68-81 101-159 99m386 126c47-65 101-92 162-79-29 65-80 95-152 91" fill="#637a4d"/>
+  <text x="350" y="710" text-anchor="middle" fill="#536043" font-family="Georgia,serif" font-size="17" letter-spacing="4">NATURAL PRODUCTS</text>
+</svg>

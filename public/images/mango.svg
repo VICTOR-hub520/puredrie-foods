@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 760">
+  <defs>
+    <linearGradient id="paper" x2="0" y2="1"><stop stop-color="#f8e6bf"/><stop offset="1" stop-color="#e4bd7d"/></linearGradient>
+    <linearGradient id="fruit" x2=".8" y2="1"><stop stop-color="#ffe17d"/><stop offset=".57" stop-color="#f39b38"/><stop offset="1" stop-color="#d75a34"/></linearGradient>
+    <filter id="shadow" x="-.2" y="-.2" width="1.4" height="1.4"><feGaussianBlur stdDeviation="12"/></filter>
+  </defs>
+  <rect width="700" height="760" fill="url(#paper)"/>
+  <circle cx="560" cy="132" r="67" fill="#f0cd8b" opacity=".65"/>
+  <ellipse cx="349" cy="620" rx="206" ry="31" fill="#7c4c2b" opacity=".22" filter="url(#shadow)"/>
+  <path d="M157 448c-7-119 53-250 168-292 113 24 198 127 218 272-20 142-88 227-202 254-111-44-172-121-184-234" fill="url(#fruit)"/>
+  <path d="M193 458c36-105 105-183 208-233m-179 292c62-74 142-126 241-155m-198 232c55-48 116-81 186-100" fill="none" stroke="#fff0b0" stroke-width="12" stroke-linecap="round" opacity=".66"/>
+  <path d="M319 177c-4-48 12-84 50-108 29 38 32 77 9 116" fill="#647b4c"/>
+  <g fill="#e18136"><circle cx="99" cy="194" r="8"/><circle cx="581" cy="364" r="6"/><circle cx="113" cy="568" r="5"/></g>
+  <text x="350" y="710" text-anchor="middle" fill="#536043" font-family="Georgia,serif" font-size="17" letter-spacing="4">PURE DRIE · MANGO</text>
+</svg>

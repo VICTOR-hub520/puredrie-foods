@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 760">
+  <defs>
+    <linearGradient id="bg" x2="0" y2="1"><stop stop-color="#eee8d1"/><stop offset="1" stop-color="#d9c99f"/></linearGradient>
+    <linearGradient id="bowl" x2="0" y2="1"><stop stop-color="#f7f0dd"/><stop offset="1" stop-color="#d3c7a6"/></linearGradient>
+    <linearGradient id="mango" x2="1" y2="1"><stop stop-color="#ffd873"/><stop offset="1" stop-color="#e47135"/></linearGradient>
+    <filter id="shadow" x="-.2" y="-.2" width="1.4" height="1.4"><feGaussianBlur stdDeviation="15"/></filter>
+  </defs>
+  <rect width="900" height="760" fill="url(#bg)"/>
+  <circle cx="714" cy="150" r="102" fill="#ead49c" opacity=".65"/>
+  <ellipse cx="448" cy="641" rx="314" ry="45" fill="#65563f" opacity=".22" filter="url(#shadow)"/>
+  <ellipse cx="449" cy="476" rx="315" ry="137" fill="#b5a68a"/>
+  <path d="M135 468c16 149 122 236 313 246 189-11 298-97 318-246-112 52-215 72-310 72-110 0-216-25-321-72" fill="url(#bowl)"/>
+  <ellipse cx="449" cy="466" rx="315" ry="118" fill="#f8f2df"/>
+  <g>
+    <path d="M224 443c4-79 51-138 130-161 62 37 92 94 87 169-27 74-82 109-164 106-38-24-56-62-53-114" fill="url(#mango)"/>
+    <path d="M465 429c20-82 68-126 146-132 58 49 75 110 50 181-44 62-105 81-182 55-29-34-34-69-14-104" fill="#8bb457"/>
+    <g fill="#e0a947" stroke="#c9883d" stroke-width="5"><circle cx="358" cy="366" r="71"/><circle cx="358" cy="366" r="26" fill="#ead7a4"/><circle cx="544" cy="385" r="72"/><circle cx="544" cy="385" r="27" fill="#ead7a4"/></g>
+    <g fill="#f0c65c"><ellipse cx="300" cy="454" rx="52" ry="35" transform="rotate(-23 300 454)"/><ellipse cx="430" cy="456" rx="54" ry="35" transform="rotate(24 430 456)"/></g>
+    <g fill="#c94d3b"><circle cx="467" cy="498" r="22"/><circle cx="501" cy="514" r="19"/><circle cx="429" cy="517" r="18"/></g>
+    <g fill="#55754c"><path d="M558 307c-18-53-8-89 29-108 25 38 21 75-12 111m31 1c14-53 44-77 88-72 0 44-27 70-79 79"/></g>
+  </g>
+  <text x="450" y="705" text-anchor="middle" fill="#536043" font-family="Georgia,serif" font-size="18" letter-spacing="5">A LITTLE OF EVERYTHING</text>
+</svg>

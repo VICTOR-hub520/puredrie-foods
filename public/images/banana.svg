@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 760">
+  <defs>
+    <linearGradient id="paper" x2="0" y2="1"><stop stop-color="#f7edc9"/><stop offset="1" stop-color="#dfc78f"/></linearGradient>
+    <linearGradient id="chip" x2=".8" y2="1"><stop stop-color="#ffe493"/><stop offset="1" stop-color="#d99b42"/></linearGradient>
+    <filter id="shadow" x="-.2" y="-.2" width="1.4" height="1.4"><feGaussianBlur stdDeviation="12"/></filter>
+  </defs>
+  <rect width="700" height="760" fill="url(#paper)"/>
+  <circle cx="535" cy="143" r="72" fill="#f5dba0" opacity=".65"/>
+  <ellipse cx="350" cy="618" rx="225" ry="34" fill="#7c4c2b" opacity=".2" filter="url(#shadow)"/>
+  <g fill="url(#chip)" stroke="#d79d49" stroke-width="7">
+    <ellipse cx="245" cy="289" rx="94" ry="74" transform="rotate(-27 245 289)"/>
+    <ellipse cx="426" cy="282" rx="94" ry="72" transform="rotate(22 426 282)"/>
+    <ellipse cx="343" cy="405" rx="103" ry="77" transform="rotate(-8 343 405)"/>
+    <ellipse cx="220" cy="505" rx="94" ry="70" transform="rotate(19 220 505)"/>
+    <ellipse cx="456" cy="505" rx="98" ry="72" transform="rotate(-18 456 505)"/>
+  </g>
+  <g fill="none" stroke="#fff1ba" stroke-width="12" stroke-linecap="round" opacity=".72">
+    <path d="m190 294 51-16m150 7 45 12m-128 111 75-9m-189 106 54 12m152 9 62-27"/>
+  </g>
+  <text x="350" y="710" text-anchor="middle" fill="#536043" font-family="Georgia,serif" font-size="17" letter-spacing="4">PURE DRIE · BANANA</text>
+</svg>
