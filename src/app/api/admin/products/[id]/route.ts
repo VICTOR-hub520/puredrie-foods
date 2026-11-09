@@ -8,6 +8,12 @@ const schema = z.object({
   name: z.string().trim().min(2).max(120),
   description: z.string().trim().min(2).max(1000),
   image: z.string().trim().min(1).max(500),
+  ingredients: z.string().trim().max(2000),
+  nutritionInformation: z.string().trim().max(3000),
+  allergenInformation: z.string().trim().max(1000),
+  storageInstructions: z.string().trim().max(1000),
+  countryOfOrigin: z.string().trim().max(120),
+  detailsPublished: z.boolean(),
   isActive: z.boolean(),
   variants: z.array(z.object({
     id: z.string().uuid().optional(),
@@ -16,6 +22,21 @@ const schema = z.object({
     amount: z.number().positive().max(100000000),
     isCustom: z.boolean().optional(),
   })).min(1).max(30),
+}).superRefine((product, context) => {
+  const hasPublishedDetails = [
+    product.ingredients,
+    product.nutritionInformation,
+    product.allergenInformation,
+    product.storageInstructions,
+    product.countryOfOrigin,
+  ].some(Boolean);
+  if (product.detailsPublished && !hasPublishedDetails) {
+    context.addIssue({
+      code: "custom",
+      path: ["detailsPublished"],
+      message: "Add at least one confirmed product detail before publishing.",
+    });
+  }
 });
 type Props = { params: Promise<{ id: string }> };
 
@@ -44,6 +65,12 @@ export async function PATCH(request: Request, { params }: Props) {
           name: parsed.data.name,
           description: parsed.data.description,
           image: parsed.data.image,
+          ingredients: parsed.data.ingredients,
+          nutritionInformation: parsed.data.nutritionInformation,
+          allergenInformation: parsed.data.allergenInformation,
+          storageInstructions: parsed.data.storageInstructions,
+          countryOfOrigin: parsed.data.countryOfOrigin,
+          detailsPublished: parsed.data.detailsPublished,
           isActive: parsed.data.isActive,
         },
         select: { id: true },

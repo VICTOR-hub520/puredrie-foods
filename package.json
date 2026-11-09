@@ -14,7 +14,8 @@
     "db:seed": "node prisma/seed.mjs",
     "db:check": "node scripts/check-db.mjs",
     "db:setup:local": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/setup-local-database.ps1",
-    "db:migrate:deploy": "prisma migrate deploy"
+    "db:migrate:deploy": "prisma migrate deploy",
+    "local:install": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/install-puredrie-shortcuts.ps1"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",

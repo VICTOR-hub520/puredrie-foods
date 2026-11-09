@@ -382,6 +382,11 @@ img { max-width: 100%; }
 textarea.form-control { resize: vertical; }
 .full-button { width: 100%; margin-top: 9px; }
 .delivery-note { margin-top: 14px; color: var(--muted); font-size: 10px; }
+.product-facts { margin-top: 75px; padding-top: 45px; border-top: 1px solid var(--line); }
+.product-facts-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin: 0; }
+.product-facts-grid > div { padding: 20px; border: 1px solid var(--line); background: var(--paper); }
+.product-facts-grid dt { margin-bottom: 8px; color: var(--green); font-family: var(--font-display); font-size: 20px; }
+.product-facts-grid dd { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.8; white-space: pre-line; }
 
 .cart-page, .checkout-page { min-height: 63vh; }
 .cart-page > .shop-intro { margin-bottom: 30px; }
@@ -559,6 +564,10 @@ textarea.form-control { resize: vertical; }
 .product-admin-form > label { display: grid; gap: 5px; }
 .product-admin-form textarea { min-height: 80px; }
 .product-admin-form small { color: var(--muted); }
+.product-facts-editor { display: grid; gap: 12px; padding: 18px; border: 1px solid var(--line); background: var(--cream); }
+.product-facts-editor > div p { max-width: 700px; margin: 6px 0 0; color: var(--muted); font-size: 10px; line-height: 1.7; }
+.product-facts-editor > label:not(.product-active-toggle) { display: grid; gap: 5px; }
+.product-facts-editor textarea { min-height: 75px; }
 .product-image-upload { display: flex; align-items: center; gap: 16px; padding: 12px; border: 1px solid var(--line); background: var(--paper); }
 .product-image-preview { width: 104px; height: 104px; flex: 0 0 104px; border: 1px solid var(--line); background-color: var(--cream); background-position: center; background-repeat: no-repeat; background-size: cover; }
 .product-image-upload-controls { display: grid; justify-items: start; gap: 8px; }
@@ -726,6 +735,8 @@ textarea.form-control { resize: vertical; }
   .detail-layout { grid-template-columns: 1fr; gap: 25px; }
   .detail-image { min-height: 90vw; max-height: 480px; }
   .detail-copy h1 { font-size: 49px; }
+  .product-facts { margin-top: 45px; padding-top: 30px; }
+  .product-facts-grid { grid-template-columns: 1fr; gap: 10px; }
   .cart-layout, .checkout-layout { grid-template-columns: 1fr; }
   .cart-layout { gap: 26px; }
   .cart-line { grid-template-columns: 67px minmax(100px,1fr) auto; gap: 11px; padding-bottom: 37px; }

@@ -8,6 +8,12 @@ type Product = {
   name: string;
   description: string;
   image: string;
+  ingredients: string;
+  nutritionInformation: string;
+  allergenInformation: string;
+  storageInstructions: string;
+  countryOfOrigin: string;
+  detailsPublished: boolean;
   isActive: boolean;
   variants: Variant[];
 };
@@ -64,6 +70,12 @@ export function ProductManager() {
           name: product.name,
           description: product.description,
           image: product.image,
+          ingredients: product.ingredients,
+          nutritionInformation: product.nutritionInformation,
+          allergenInformation: product.allergenInformation,
+          storageInstructions: product.storageInstructions,
+          countryOfOrigin: product.countryOfOrigin,
+          detailsPublished: product.detailsPublished,
           isActive: product.isActive,
           variants: product.variants.map((variant) => ({
             ...variant,
@@ -140,6 +152,18 @@ export function ProductManager() {
                 </div>
               </div>
               <label>Image path or URL<input className="form-control" value={product.image} onChange={(event) => updateProduct(product.id, { image: event.target.value })} maxLength={500} required /><small>Use a path in /public (for example /images/mango.svg) or an approved image URL.</small></label>
+              <div className="product-facts-editor">
+                <div>
+                  <span className="eyebrow">Verified product information</span>
+                  <p>Only enter facts confirmed by the product label or business records. These details stay off the public product page until you publish them.</p>
+                </div>
+                <label>Ingredients<textarea className="form-control" value={product.ingredients} onChange={(event) => updateProduct(product.id, { ingredients: event.target.value })} maxLength={2000} placeholder="Enter confirmed label wording, or leave blank." /></label>
+                <label>Nutrition information<textarea className="form-control" value={product.nutritionInformation} onChange={(event) => updateProduct(product.id, { nutritionInformation: event.target.value })} maxLength={3000} placeholder="Enter confirmed label values and serving details, or leave blank." /></label>
+                <label>Allergen information<textarea className="form-control" value={product.allergenInformation} onChange={(event) => updateProduct(product.id, { allergenInformation: event.target.value })} maxLength={1000} placeholder="Enter confirmed allergen or cross-contact wording, or leave blank." /></label>
+                <label>Storage instructions<textarea className="form-control" value={product.storageInstructions} onChange={(event) => updateProduct(product.id, { storageInstructions: event.target.value })} maxLength={1000} placeholder="Enter confirmed storage instructions, or leave blank." /></label>
+                <label>Country of origin<input className="form-control" value={product.countryOfOrigin} onChange={(event) => updateProduct(product.id, { countryOfOrigin: event.target.value })} maxLength={120} placeholder="Enter the confirmed product origin, or leave blank." /></label>
+                <label className="product-active-toggle"><input type="checkbox" checked={product.detailsPublished} onChange={(event) => updateProduct(product.id, { detailsPublished: event.target.checked })} /> Publish confirmed details on the product page</label>
+              </div>
               <label className="product-active-toggle"><input type="checkbox" checked={product.isActive} onChange={(event) => updateProduct(product.id, { isActive: event.target.checked })} /> Available in the shop</label>
               <div className="product-admin-variants">
                 <div className="admin-card-heading"><h3>Package prices</h3><button className="text-button" type="button" onClick={() => updateProduct(product.id, { variants: [...product.variants, { label: "", weightGrams: "100", amount: "", isCustom: true }] })}>Add custom package +</button></div>

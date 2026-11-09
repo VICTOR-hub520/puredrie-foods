@@ -45,6 +45,20 @@ export default async function ProductPage({ params }: Props) {
             <p className="delivery-note">Delivery is free and arrives within six calendar days. Pay by M-Pesa, cash or cheque.</p>
           </div>
         </div>
+        {product.detailsPublished && (
+          <section className="product-facts" aria-labelledby="product-facts-heading">
+            <div className="section-heading">
+              <div><span className="eyebrow">Product information</span><h2 id="product-facts-heading">The details, <em>clearly.</em></h2></div>
+            </div>
+            <dl className="product-facts-grid">
+              {product.ingredients && <div><dt>Ingredients</dt><dd>{product.ingredients}</dd></div>}
+              {product.nutritionInformation && <div><dt>Nutrition information</dt><dd>{product.nutritionInformation}</dd></div>}
+              {product.allergenInformation && <div><dt>Allergen information</dt><dd>{product.allergenInformation}</dd></div>}
+              {product.storageInstructions && <div><dt>Storage</dt><dd>{product.storageInstructions}</dd></div>}
+              {product.countryOfOrigin && <div><dt>Country of origin</dt><dd>{product.countryOfOrigin}</dd></div>}
+            </dl>
+          </section>
+        )}
       </section>
       {related.length > 0 && (
         <section className="section related-section">

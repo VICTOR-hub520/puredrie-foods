@@ -18,7 +18,6 @@ export function SiteHeader() {
 
   return (
     <header className="site-header">
-      <div className="announcement">Dried fruit and moringa · Free delivery within six calendar days</div>
       <div className="nav-wrap">
         <Link className="brand" href="/" aria-label="Puredrie Foods home">
           <span className="brand-mark">pf</span>

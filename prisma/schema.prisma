@@ -126,6 +126,12 @@ model Product {
   description String
   image       String
   category    String
+  ingredients           String   @default("") @db.Text
+  nutritionInformation  String   @default("") @db.Text
+  allergenInformation   String   @default("") @db.Text
+  storageInstructions   String   @default("") @db.Text
+  countryOfOrigin       String   @default("") @db.Text
+  detailsPublished      Boolean  @default(false)
   isActive    Boolean          @default(true)
   isFeatured  Boolean          @default(false)
   createdAt   DateTime         @default(now()) @db.Timestamptz(3)
